@@ -1,0 +1,37 @@
+import telebot
+from telebot import types
+
+# حطي التوكن الخاص بالبوت بتاعك هنا بين القوسين
+TOKEN = "YOUR_BOT_TOKEN_HERE"
+bot = telebot.TeleBot(TOKEN)
+
+# ترحيب بالمسخدم وظهور الزراير أول ما يكتب /start
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    # إنشاء لوحة أزرار تفاعلية (Inline Keyboard)
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    
+    # تعريف الزراير اللي طلبتيها
+    btn_imported = types.InlineKeyboardButton("شنطه ماركت مستورد 🛍️", callback_data='imported')
+    btn_local = types.InlineKeyboardButton("شنطه ماركت مصري 🇪🇬", callback_data='local')
+    
+    # إضافة الزراير للوحة
+    markup.add(btn_imported, btn_local)
+    
+    # إرسال الرسالة ومعاها الزراير
+    bot.send_message(message.chat.id, "أهلاً بكِ في المتجر! يرجى اختيار نوع الشنط:", reply_markup=markup)
+
+# التعامل مع ضغطات الزراير
+@bot.message_handler(func=lambda message: True)
+@bot.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+    if call.message:
+        if call.data == "imported":
+            bot.send_message(call.message.chat.id, "لقد اخترتِ: شنطه ماركت مستورد ✨\nسيتم عرض التشكيلة المتاحة قريباً!")
+        elif call.data == "local":
+            bot.send_message(call.message.chat.id, "لقد اخترتِ: شنطه ماركت مصري 💯\nدعم المنتج المحلي! سيتم عرض التشكيلة قريباً.")
+
+# تشغيل البوت بشكل مستمر
+if __name__ == "__main__":
+    print("🤖 البوت شغال وجاهز لاستقبال الضغطات...")
+    bot.infinit_polling()
